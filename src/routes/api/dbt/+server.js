@@ -1,21 +1,58 @@
 import { json } from '@sveltejs/kit';
-import { DBT_TOKEN, DBT_ACCOUNT_ID, DBT_JOB_ID, DBT_BASE_URL } from '$env/static/private';
+import { DBT_TOKEN } from '$env/static/private';
 import { fetchLatestRun } from '$lib/dbt.js';
+import { readFileSync } from 'fs';
+import yaml from 'js-yaml';
+
+function loadDbtJobs() {
+	try {
+		const content = readFileSync('dbt-jobs.yaml', 'utf-8');
+		return yaml.load(content) || [];
+	} catch {
+		return [];
+	}
+}
 
 export async function GET() {
-	// Return null if dbt Cloud is not configured
-	if (!DBT_TOKEN || !DBT_ACCOUNT_ID || !DBT_JOB_ID || !DBT_BASE_URL) {
-		return json({ configured: false, run: null });
+	const jobs = loadDbtJobs();
+
+	// Return empty if no token or no jobs configured
+	if (!DBT_TOKEN || jobs.length === 0) {
+		return json({ configured: false, runs: [] });
 	}
 
 	try {
-		const run = await fetchLatestRun(DBT_TOKEN, DBT_ACCOUNT_ID, DBT_JOB_ID, DBT_BASE_URL);
+		// Fetch all jobs in parallel
+		const runPromises = jobs.map(async (job) => {
+			try {
+				const run = await fetchLatestRun(
+					DBT_TOKEN,
+					job.accountId,
+					job.jobId,
+					job.baseUrl
+				);
+				return {
+					name: job.name,
+					...run
+				};
+			} catch (error) {
+				return {
+					name: job.name,
+					error: error.message,
+					status: 'Error',
+					statusColor: 'red'
+				};
+			}
+		});
+
+		const runs = await Promise.all(runPromises);
+
 		return json({
 			configured: true,
-			run,
+			runs,
 			fetchedAt: new Date().toISOString()
 		});
 	} catch (error) {
-		return json({ configured: true, error: error.message, run: null }, { status: 500 });
+		return json({ configured: true, error: error.message, runs: [] }, { status: 500 });
 	}
 }

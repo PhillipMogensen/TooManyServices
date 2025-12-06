@@ -4,9 +4,12 @@
 	import IssueList from '$lib/components/IssueList.svelte';
 
 	let prs = [];
-	let issues = [];
+	let currentIteration = [];
+	let currentIterationClosed = [];
+	let futureIterations = [];
+	let backlog = [];
 	let links = [];
-	let dbtRun = null;
+	let dbtRuns = [];
 	let dbtConfigured = false;
 	let lastUpdated = null;
 	let loading = true;
@@ -32,14 +35,17 @@
 
 			const githubData = await githubRes.json();
 			prs = githubData.prs;
-			issues = githubData.issues;
+			currentIteration = githubData.currentIteration;
+			currentIterationClosed = githubData.currentIterationClosed;
+			futureIterations = githubData.futureIterations;
+			backlog = githubData.backlog;
 			lastUpdated = new Date(githubData.fetchedAt);
 
 			links = await linksRes.json();
 
 			const dbtData = await dbtRes.json();
 			dbtConfigured = dbtData.configured;
-			dbtRun = dbtData.run;
+			dbtRuns = dbtData.runs || [];
 		} catch (e) {
 			error = e.message;
 		} finally {
@@ -108,35 +114,39 @@
 		<div class="bg-white border-b">
 			<div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-4 flex-wrap">
 				<!-- dbt Cloud status -->
-				{#if dbtConfigured && dbtRun}
-					<div class="flex items-center gap-2">
+				{#if dbtConfigured && dbtRuns.length > 0}
+					<div class="flex items-center gap-2 flex-wrap">
 						<span class="text-xs text-gray-500">dbt:</span>
-						<a
-							href={dbtRun.runUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="flex items-center gap-1.5 px-2 py-1 rounded text-xs {statusColors[dbtRun.statusColor]} hover:opacity-80"
-						>
-							<span class="font-medium">{dbtRun.status}</span>
-							<span class="text-gray-500">·</span>
-							<span>{timeAgo(dbtRun.finishedAt)}</span>
-							{#if dbtRun.duration}
-								<span class="text-gray-500">·</span>
-								<span>{dbtRun.duration}</span>
+						{#each dbtRuns as run, i}
+							{#if i > 0}
+								<span class="text-xs text-gray-300">|</span>
 							{/if}
-						</a>
-						{#if dbtRun.freshness}
-							<span class="text-xs text-gray-400">|</span>
-							<span class="flex items-center gap-1 px-2 py-1 rounded text-xs {statusColors[dbtRun.freshness.statusColor]}">
-								<span>Freshness:</span>
-								<span class="font-medium">{dbtRun.freshness.status}</span>
-							</span>
-						{/if}
+							<div class="flex items-center gap-1">
+								<span class="text-xs text-gray-600 font-medium">{run.name}:</span>
+								<a
+									href={run.runUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="flex items-center gap-1 px-2 py-1 rounded text-xs {statusColors[run.statusColor]} hover:opacity-80"
+								>
+									<span class="font-medium">{run.status}</span>
+									{#if run.finishedAt}
+										<span class="opacity-60">·</span>
+										<span class="opacity-80">{timeAgo(run.finishedAt)}</span>
+									{/if}
+								</a>
+								{#if run.freshness}
+									<span class="px-1.5 py-0.5 rounded text-xs {statusColors[run.freshness.statusColor]}">
+										F: {run.freshness.status}
+									</span>
+								{/if}
+							</div>
+						{/each}
 					</div>
 				{/if}
 
 				<!-- Separator -->
-				{#if dbtConfigured && dbtRun && links.length > 0}
+				{#if dbtConfigured && dbtRuns.length > 0 && links.length > 0}
 					<div class="h-4 w-px bg-gray-300"></div>
 				{/if}
 
@@ -167,9 +177,13 @@
 			</div>
 		{/if}
 
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+		<div class="space-y-4">
 			<PRList {prs} />
-			<IssueList {issues} />
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+				<IssueList issues={currentIteration} closedIssues={currentIterationClosed} title="Current Iteration" showIteration={true} />
+				<IssueList issues={futureIterations} title="Planned" showIteration={true} />
+				<IssueList issues={backlog} title="Backlog" />
+			</div>
 		</div>
 	</main>
 </div>

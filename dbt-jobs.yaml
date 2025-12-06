@@ -1,0 +1,9 @@
+# dbt Cloud jobs to monitor
+# Token is kept in .env for security (DBT_TOKEN)
+
+- name: Marketing analytics
+  accountId: 373
+  projectId: 7730
+  jobId: 263465
+  baseUrl: https://emea.dbt.com
+
