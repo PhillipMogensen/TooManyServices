@@ -1,38 +1,46 @@
-# sv
+# Personal Dashboard
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A local web dashboard showing GitHub PRs/issues awaiting your action, plus quick-access links.
 
-## Creating a project
+## Setup
 
-If you're seeing this, you've probably already done this step. Congrats!
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-```sh
-# create a new project in the current directory
-npx sv create
+2. **Configure environment:**
+   ```bash
+   cp .env.example .env
+   ```
 
-# create a new project in my-app
-npx sv create my-app
-```
+   Edit `.env` and add:
+   - `GITHUB_TOKEN`: Personal access token with `repo` scope
+   - `GITHUB_USERNAME`: Your GitHub username
 
-## Developing
+3. **Configure quick links:**
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+   Edit `links.yaml` to add your frequently used links.
 
-```sh
-npm run dev
+4. **Run:**
+   ```bash
+   npm run dev
+   ```
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+   Open http://localhost:5173
 
-## Building
+## Features
 
-To create a production version of your app:
+- PRs awaiting your review (review-requested, mentioned, assigned)
+- Issues mentioning or assigned to you
+- One-click quick links (configured in `links.yaml`)
+- Auto-refresh every 5 minutes
+- Manual refresh button
 
-```sh
-npm run build
-```
+## Portability
 
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+To take this to a new job:
+1. Copy the entire folder
+2. Update `.env` with new GitHub token
+3. Update `links.yaml` with new links
+4. `npm install && npm run dev`
