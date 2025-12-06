@@ -1,13 +1,11 @@
-// EMEA region base URL
-const DBT_API = 'https://emea.dbt.com/api/v2';
-
-export async function fetchLatestRun(token, accountId, jobId) {
+export async function fetchLatestRun(token, accountId, jobId, baseUrl) {
+	const apiUrl = `${baseUrl}/api/v2`;
 	const headers = {
 		Authorization: `Token ${token}`,
 		'Content-Type': 'application/json'
 	};
 
-	const url = `${DBT_API}/accounts/${accountId}/runs/?job_definition_id=${jobId}&limit=1&order_by=-finished_at`;
+	const url = `${apiUrl}/accounts/${accountId}/runs/?job_definition_id=${jobId}&limit=1&order_by=-finished_at`;
 	const response = await fetch(url, { headers });
 
 	if (!response.ok) {

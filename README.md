@@ -25,6 +25,10 @@ A local web dashboard showing GitHub PRs/issues awaiting your action, plus quick
    - `DBT_ACCOUNT_ID`: Your dbt Cloud account ID
    - `DBT_PROJECT_ID`: Your project ID
    - `DBT_JOB_ID`: The job ID for your production build
+   - `DBT_BASE_URL`: Your dbt Cloud region URL:
+     - US: `https://cloud.getdbt.com`
+     - EMEA: `https://emea.dbt.com`
+     - AU: `https://au.dbt.com`
 
    Leave these empty to disable dbt integration.
 
