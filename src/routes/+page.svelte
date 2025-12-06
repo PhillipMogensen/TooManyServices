@@ -125,6 +125,13 @@
 								<span>{dbtRun.duration}</span>
 							{/if}
 						</a>
+						{#if dbtRun.freshness}
+							<span class="text-xs text-gray-400">|</span>
+							<span class="flex items-center gap-1 px-2 py-1 rounded text-xs {statusColors[dbtRun.freshness.statusColor]}">
+								<span>Freshness:</span>
+								<span class="font-medium">{dbtRun.freshness.status}</span>
+							</span>
+						{/if}
 					</div>
 				{/if}
 
