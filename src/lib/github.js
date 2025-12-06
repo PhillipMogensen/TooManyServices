@@ -52,8 +52,11 @@ export async function fetchGitHubData(token, username) {
 		});
 	});
 
+	// Sort by most recent activity (updated_at)
+	const sortByActivity = (a, b) => new Date(b.updated_at) - new Date(a.updated_at);
+
 	return {
-		prs: Array.from(prMap.values()),
-		issues: Array.from(issueMap.values())
+		prs: Array.from(prMap.values()).sort(sortByActivity),
+		issues: Array.from(issueMap.values()).sort(sortByActivity)
 	};
 }
