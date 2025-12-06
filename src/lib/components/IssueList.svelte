@@ -18,6 +18,12 @@
 		const months = Math.floor(days / 30);
 		return `${months}mo ago`;
 	}
+
+	function isBug(issue) {
+		return issue.labels?.some((label) =>
+			label.name?.toLowerCase().includes('bug')
+		);
+	}
 </script>
 
 <div class="bg-white rounded-lg shadow p-4">
@@ -28,7 +34,7 @@
 	{:else}
 		<ul class="space-y-2">
 			{#each issues as issue}
-				<li class="border-l-4 border-green-500 pl-3 py-1">
+				<li class="border-l-4 pl-3 py-1 {isBug(issue) ? 'border-red-500' : 'border-green-500'}">
 					<a
 						href={issue.html_url}
 						target="_blank"
@@ -43,6 +49,18 @@
 							<span class="ml-1 px-1 py-0.5 bg-purple-100 text-purple-800 rounded">assigned</span>
 						{/if}
 					</div>
+					{#if issue.labels?.length > 0}
+						<div class="flex flex-wrap gap-1 mt-1">
+							{#each issue.labels as label}
+								<span
+									class="px-1.5 py-0.5 text-xs rounded"
+									style="background-color: #{label.color}; color: {parseInt(label.color, 16) > 0x7fffff ? '#000' : '#fff'}"
+								>
+									{label.name}
+								</span>
+							{/each}
+						</div>
+					{/if}
 				</li>
 			{/each}
 		</ul>
