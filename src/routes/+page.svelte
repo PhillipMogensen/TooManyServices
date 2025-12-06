@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import PRList from '$lib/components/PRList.svelte';
 	import IssueList from '$lib/components/IssueList.svelte';
+	import CalendarList from '$lib/components/CalendarList.svelte';
 
 	let prs = [];
 	let currentIteration = [];
@@ -11,6 +12,8 @@
 	let links = [];
 	let dbtRuns = [];
 	let dbtConfigured = false;
+	let calendarEvents = [];
+	let calendarConfigured = false;
 	let lastUpdated = null;
 	let loading = true;
 	let error = null;
@@ -22,10 +25,11 @@
 		error = null;
 
 		try {
-			const [githubRes, linksRes, dbtRes] = await Promise.all([
+			const [githubRes, linksRes, dbtRes, calendarRes] = await Promise.all([
 				fetch('/api/github'),
 				fetch('/api/links'),
-				fetch('/api/dbt')
+				fetch('/api/dbt'),
+				fetch('/api/calendar')
 			]);
 
 			if (!githubRes.ok) {
@@ -46,6 +50,10 @@
 			const dbtData = await dbtRes.json();
 			dbtConfigured = dbtData.configured;
 			dbtRuns = dbtData.runs || [];
+
+			const calendarData = await calendarRes.json();
+			calendarConfigured = calendarData.configured;
+			calendarEvents = calendarData.events || [];
 		} catch (e) {
 			error = e.message;
 		} finally {
@@ -179,10 +187,15 @@
 
 		<div class="space-y-4">
 			<PRList {prs} />
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<IssueList issues={currentIteration} closedIssues={currentIterationClosed} title="Current Iteration" showIteration={true} />
-				<IssueList issues={futureIterations} title="Planned" showIteration={true} />
-				<IssueList issues={backlog} title="Backlog" />
+			<div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+				{#if calendarConfigured}
+					<CalendarList events={calendarEvents} />
+				{/if}
+				<div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+					<IssueList issues={currentIteration} closedIssues={currentIterationClosed} title="Current Iteration" showIteration={true} />
+					<IssueList issues={futureIterations} title="Planned" showIteration={true} />
+					<IssueList issues={backlog} title="Backlog" />
+				</div>
 			</div>
 		</div>
 	</main>

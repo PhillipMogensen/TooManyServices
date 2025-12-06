@@ -19,6 +19,7 @@
 		"vite": "^7.2.2"
 	},
 	"dependencies": {
+		"@sveltejs/adapter-node": "^5.4.0",
 		"js-yaml": "^4.1.1"
 	}
 }
