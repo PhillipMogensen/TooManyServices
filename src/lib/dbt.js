@@ -15,8 +15,8 @@ export async function fetchLatestRun(token, accountId, jobId, baseUrl) {
 		'Content-Type': 'application/json'
 	};
 
-	// Get latest run for the job
-	const listUrl = `${apiUrl}/accounts/${accountId}/runs/?job_definition_id=${jobId}&limit=1&order_by=-finished_at`;
+	// Get latest run for the job with run_steps included
+	const listUrl = `${apiUrl}/accounts/${accountId}/runs/?job_definition_id=${jobId}&limit=1&order_by=-finished_at&include_related=run_steps`;
 	const listResponse = await fetch(listUrl, { headers });
 
 	if (!listResponse.ok) {
@@ -30,28 +30,20 @@ export async function fetchLatestRun(token, accountId, jobId, baseUrl) {
 	}
 
 	const run = listData.data[0];
+	const runSteps = run.run_steps || [];
 
-	// Fetch run details to get run_steps (includes freshness)
-	const detailUrl = `${apiUrl}/accounts/${accountId}/runs/${run.id}/`;
-	const detailResponse = await fetch(detailUrl, { headers });
+	// Find the freshness step (looks for "freshness" in the step name)
+	const freshnessStep = runSteps.find((step) =>
+		step.name?.toLowerCase().includes('freshness')
+	);
 
 	let freshnessStatus = null;
-	if (detailResponse.ok) {
-		const detailData = await detailResponse.json();
-		const runSteps = detailData.data?.run_steps || [];
-
-		// Find the freshness step
-		const freshnessStep = runSteps.find(
-			(step) => step.name?.toLowerCase().includes('freshness') || step.name === 'Freshness'
-		);
-
-		if (freshnessStep) {
-			const freshStatus = statusMap[freshnessStep.status] || { label: 'Unknown', color: 'gray' };
-			freshnessStatus = {
-				status: freshStatus.label,
-				statusColor: freshStatus.color
-			};
-		}
+	if (freshnessStep) {
+		const freshStatus = statusMap[freshnessStep.status] || { label: 'Unknown', color: 'gray' };
+		freshnessStatus = {
+			status: freshStatus.label,
+			statusColor: freshStatus.color
+		};
 	}
 
 	const status = statusMap[run.status] || { label: 'Unknown', color: 'gray' };
