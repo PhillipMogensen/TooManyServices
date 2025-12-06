@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import PRList from '$lib/components/PRList.svelte';
 	import IssueList from '$lib/components/IssueList.svelte';
-	import QuickLinks from '$lib/components/QuickLinks.svelte';
 
 	let prs = [];
 	let issues = [];
@@ -74,6 +73,25 @@
 		</div>
 	</header>
 
+	<!-- Quick Links bar -->
+	{#if links.length > 0}
+		<div class="bg-white border-b">
+			<div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-2 flex-wrap">
+				<span class="text-xs text-gray-500 mr-1">Links:</span>
+				{#each links as link}
+					<a
+						href={link.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded text-gray-700 transition-colors"
+					>
+						{link.name}
+					</a>
+				{/each}
+			</div>
+		</div>
+	{/if}
+
 	<main class="max-w-7xl mx-auto px-4 py-6">
 		{#if error}
 			<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
@@ -81,10 +99,9 @@
 			</div>
 		{/if}
 
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 			<PRList {prs} />
 			<IssueList {issues} />
-			<QuickLinks {links} />
 		</div>
 	</main>
 </div>
