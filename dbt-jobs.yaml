@@ -7,3 +7,8 @@
   jobId: 263465
   baseUrl: https://emea.dbt.com
 
+- name: Data platform 
+  accountId: 373
+  projectId: 5389
+  jobId: 162771
+  baseUrl: https://emea.dbt.com
