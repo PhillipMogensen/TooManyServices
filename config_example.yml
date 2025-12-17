@@ -1,0 +1,28 @@
+# Dashboard configuration
+# Copy this file to .config.yml and fill in your values
+# API tokens are kept in .env for security
+
+# dbt Cloud jobs to monitor
+dbt:
+  jobs:
+    - name: My dbt job
+      accountId: 123
+      projectId: 456
+      jobId: 789
+      baseUrl: https://emea.dbt.com # or https://cloud.getdbt.com
+
+# Prefect deployments to monitor
+# Deployments with ANY of these tags will be shown
+prefect:
+  accountId: your-account-id
+  workspaceId: your-workspace-id
+  tags:
+    - my-tag
+
+# Quick links for the dashboard
+links:
+  - name: GitHub
+    url: https://github.com
+
+  - name: Documentation
+    url: https://docs.example.com

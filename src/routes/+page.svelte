@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import PRList from '$lib/components/PRList.svelte';
 	import IssueList from '$lib/components/IssueList.svelte';
+	import PrefectDeployments from '$lib/components/PrefectDeployments.svelte';
 
 	let prs = [];
 	let currentIteration = [];
@@ -11,6 +12,10 @@
 	let links = [];
 	let dbtRuns = [];
 	let dbtConfigured = false;
+	let prefectDeployments = [];
+	let prefectConfigured = false;
+	let prefectTagSummary = {};
+	let prefectMonitoredTags = [];
 	let lastUpdated = null;
 	let loading = true;
 	let error = null;
@@ -22,10 +27,11 @@
 		error = null;
 
 		try {
-			const [githubRes, linksRes, dbtRes] = await Promise.all([
+			const [githubRes, linksRes, dbtRes, prefectRes] = await Promise.all([
 				fetch('/api/github'),
 				fetch('/api/links'),
-				fetch('/api/dbt')
+				fetch('/api/dbt'),
+				fetch('/api/prefect')
 			]);
 
 			if (!githubRes.ok) {
@@ -46,6 +52,12 @@
 			const dbtData = await dbtRes.json();
 			dbtConfigured = dbtData.configured;
 			dbtRuns = dbtData.runs || [];
+
+			const prefectData = await prefectRes.json();
+			prefectConfigured = prefectData.configured;
+			prefectDeployments = prefectData.deployments || [];
+			prefectTagSummary = prefectData.tagSummary || {};
+			prefectMonitoredTags = prefectData.tags || [];
 		} catch (e) {
 			error = e.message;
 		} finally {
@@ -179,6 +191,9 @@
 
 		<div class="space-y-4">
 			<PRList {prs} />
+			{#if prefectConfigured && prefectDeployments.length > 0}
+				<PrefectDeployments deployments={prefectDeployments} tagSummary={prefectTagSummary} monitoredTags={prefectMonitoredTags} />
+			{/if}
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 				<IssueList issues={currentIteration} closedIssues={currentIterationClosed} title="Current Iteration" showIteration={true} />
 				<IssueList issues={futureIterations} title="Planned" showIteration={true} />

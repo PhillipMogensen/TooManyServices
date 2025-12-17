@@ -29,9 +29,8 @@ COPY --from=builder /app/build ./build
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
-# Copy config files needed at runtime
-COPY dbt-jobs.yaml ./
-COPY links.yaml ./
+# Copy config file needed at runtime
+COPY .config.yml ./
 
 # Set ownership
 RUN chown -R sveltekit:nodejs /app

@@ -1,20 +1,10 @@
 import { json } from '@sveltejs/kit';
 import { DBT_TOKEN } from '$env/static/private';
 import { fetchLatestRun } from '$lib/dbt.js';
-import { readFileSync } from 'fs';
-import yaml from 'js-yaml';
-
-function loadDbtJobs() {
-	try {
-		const content = readFileSync('dbt-jobs.yaml', 'utf-8');
-		return yaml.load(content) || [];
-	} catch {
-		return [];
-	}
-}
+import { getDbtJobs } from '$lib/config.js';
 
 export async function GET() {
-	const jobs = loadDbtJobs();
+	const jobs = getDbtJobs();
 
 	// Return empty if no token or no jobs configured
 	if (!DBT_TOKEN || jobs.length === 0) {
