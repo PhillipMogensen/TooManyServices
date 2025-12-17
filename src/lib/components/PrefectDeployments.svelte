@@ -41,7 +41,7 @@
 
 <div class="bg-white rounded-lg shadow p-4">
 	<div class="flex items-center gap-2 mb-3 flex-wrap">
-		<h2 class="text-lg font-semibold text-gray-800">Prefect Failed Deployments</h2>
+		<h2 class="text-lg font-semibold text-gray-800">Prefect Deployments</h2>
 		{#if deployments.length > 0}
 			<span class="text-sm text-gray-500">({deployments.length})</span>
 		{/if}
@@ -61,7 +61,7 @@
 	</div>
 
 	{#if deployments.length === 0}
-		<p class="text-gray-500 text-sm">No failed deployments</p>
+		<p class="text-gray-500 text-sm">All deployments successful</p>
 	{:else}
 		<div class="flex flex-wrap gap-3">
 			{#each deployments as deployment}

@@ -191,7 +191,7 @@
 
 		<div class="space-y-4">
 			<PRList {prs} />
-			{#if prefectConfigured && prefectDeployments.length > 0}
+			{#if prefectConfigured}
 				<PrefectDeployments deployments={prefectDeployments} tagSummary={prefectTagSummary} monitoredTags={prefectMonitoredTags} />
 			{/if}
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -120,7 +120,7 @@ function hasExecuted(run) {
 
 /**
  * Main function to fetch Prefect data for the dashboard
- * Returns deployments where the most recent executed run failed or crashed, along with run history
+ * Returns deployments where the most recent executed run is not successful (COMPLETED), along with run history
  */
 export async function fetchPrefectData(apiKey, config) {
 	const { accountId, workspaceId, tags } = config;
@@ -223,15 +223,15 @@ export async function fetchPrefectData(apiKey, config) {
 			}
 		}
 
-		// Filter to only failed/crashed deployments
-		const failedDeployments = validDeployments.filter((d) => {
+		// Filter to deployments where latest run is not successful
+		const nonSuccessfulDeployments = validDeployments.filter((d) => {
 			const state = d.latestRun.state?.toUpperCase();
-			return state === 'FAILED' || state === 'CRASHED';
+			return state !== 'COMPLETED';
 		});
 
 		return {
 			configured: true,
-			deployments: failedDeployments,
+			deployments: nonSuccessfulDeployments,
 			tagSummary
 		};
 	} catch (error) {
