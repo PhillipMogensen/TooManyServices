@@ -12,6 +12,8 @@
 	let links = [];
 	let dbtRuns = [];
 	let dbtConfigured = false;
+	let githubConfigured = false;
+	let githubError = null;
 	let prefectDeployments = [];
 	let prefectConfigured = false;
 	let prefectTagSummary = {};
@@ -25,6 +27,7 @@
 	async function fetchData() {
 		loading = true;
 		error = null;
+		githubError = null;
 
 		try {
 			const [githubRes, linksRes, dbtRes, prefectRes] = await Promise.all([
@@ -40,12 +43,16 @@
 			}
 
 			const githubData = await githubRes.json();
-			prs = githubData.prs;
-			currentIteration = githubData.currentIteration;
-			currentIterationClosed = githubData.currentIterationClosed;
-			futureIterations = githubData.futureIterations;
-			backlog = githubData.backlog;
-			lastUpdated = new Date(githubData.fetchedAt);
+			githubConfigured = githubData.configured;
+			githubError = githubData.error || null;
+			prs = githubData.prs || [];
+			currentIteration = githubData.currentIteration || [];
+			currentIterationClosed = githubData.currentIterationClosed || [];
+			futureIterations = githubData.futureIterations || [];
+			backlog = githubData.backlog || [];
+			if (githubData.fetchedAt) {
+				lastUpdated = new Date(githubData.fetchedAt);
+			}
 
 			links = await linksRes.json();
 
@@ -190,15 +197,24 @@
 		{/if}
 
 		<div class="space-y-4">
-			<PRList {prs} />
+			{#if githubConfigured && githubError}
+				<div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded">
+					GitHub error: {githubError}
+				</div>
+			{/if}
+			{#if githubConfigured && !githubError}
+				<PRList {prs} />
+			{/if}
 			{#if prefectConfigured}
 				<PrefectDeployments deployments={prefectDeployments} tagSummary={prefectTagSummary} monitoredTags={prefectMonitoredTags} />
 			{/if}
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<IssueList issues={currentIteration} closedIssues={currentIterationClosed} title="Current Iteration" showIteration={true} />
-				<IssueList issues={futureIterations} title="Planned" showIteration={true} />
-				<IssueList issues={backlog} title="Backlog" />
-			</div>
+			{#if githubConfigured && !githubError}
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+					<IssueList issues={currentIteration} closedIssues={currentIterationClosed} title="Current Iteration" showIteration={true} />
+					<IssueList issues={futureIterations} title="Planned" showIteration={true} />
+					<IssueList issues={backlog} title="Backlog" />
+				</div>
+			{/if}
 		</div>
 	</main>
 </div>
