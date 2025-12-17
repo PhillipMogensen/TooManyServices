@@ -1,14 +1,14 @@
 import { json } from '@sveltejs/kit';
-import { GITHUB_TOKEN, GITHUB_USERNAME } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { fetchGitHubData } from '$lib/github.js';
 
 export async function GET() {
-	if (!GITHUB_TOKEN || !GITHUB_USERNAME) {
+	if (!env.GITHUB_TOKEN || !env.GITHUB_USERNAME) {
 		return json({ error: 'Missing GITHUB_TOKEN or GITHUB_USERNAME in .env' }, { status: 500 });
 	}
 
 	try {
-		const data = await fetchGitHubData(GITHUB_TOKEN, GITHUB_USERNAME);
+		const data = await fetchGitHubData(env.GITHUB_TOKEN, env.GITHUB_USERNAME);
 		return json({
 			...data,
 			fetchedAt: new Date().toISOString()

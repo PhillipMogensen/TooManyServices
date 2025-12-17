@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { PREFECT_API_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { fetchPrefectData } from '$lib/prefect.js';
 import { getPrefectConfig } from '$lib/config.js';
 
@@ -7,12 +7,12 @@ export async function GET() {
 	const config = getPrefectConfig();
 
 	// Return empty if not fully configured
-	if (!PREFECT_API_KEY || !config.accountId || !config.workspaceId || config.tags.length === 0) {
+	if (!env.PREFECT_API_KEY || !config.accountId || !config.workspaceId || config.tags.length === 0) {
 		return json({ configured: false, deployments: [] });
 	}
 
 	try {
-		const data = await fetchPrefectData(PREFECT_API_KEY, config);
+		const data = await fetchPrefectData(env.PREFECT_API_KEY, config);
 
 		return json({
 			...data,

@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { DBT_TOKEN } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { fetchLatestRun } from '$lib/dbt.js';
 import { getDbtJobs } from '$lib/config.js';
 
@@ -7,7 +7,7 @@ export async function GET() {
 	const jobs = getDbtJobs();
 
 	// Return empty if no token or no jobs configured
-	if (!DBT_TOKEN || jobs.length === 0) {
+	if (!env.DBT_TOKEN || jobs.length === 0) {
 		return json({ configured: false, runs: [] });
 	}
 
@@ -16,7 +16,7 @@ export async function GET() {
 		const runPromises = jobs.map(async (job) => {
 			try {
 				const run = await fetchLatestRun(
-					DBT_TOKEN,
+					env.DBT_TOKEN,
 					job.accountId,
 					job.jobId,
 					job.baseUrl
